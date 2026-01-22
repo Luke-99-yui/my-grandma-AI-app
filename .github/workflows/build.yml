@@ -1,0 +1,30 @@
+name: Build Obachan App
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet google-generativeai pyinstaller
+          
+      - name: Build with Flet Pack
+        run: |
+          # ファイル名にスペースやカッコがあると失敗しやすいため、一時的にリネームしてビルドします
+          copy "obachan(1) - コピー.py" "main.py"
+          flet pack main.py --name "ObachanApp" --collect-all google-generativeai
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Obachan-Windows-EXE
+          path: dist/*.exe
